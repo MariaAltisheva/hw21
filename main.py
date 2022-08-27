@@ -1,40 +1,60 @@
 from abc import ABC, abstractmethod
 
 class Storage(ABC):
+    @property
+    @abstractmethod
+    def items(self):
+        pass
+
+    @property
+    @abstractmethod
+    def capacity(self):
+        pass
+
     @abstractmethod
     def add(self): #увеличивает запас
         pass
+
     @abstractmethod
     def remove(self): #уменьшает запас
         pass
+
     @abstractmethod
     def get_free_space(self): #возвращает кол-во свободных ест
         pass
+
     @abstractmethod
     def get_items(self): #возвращат содржание склада в словаре (товар: кол-во)
         pass
+
     @abstractmethod
     def get_unique_items_count(self): # возвращает кол-во уникальных товаров
         pass
 
 class Store(Storage):
-    def __init__(self, items: dict, capacity=100):
-        self.__items = items
-        self.__capacity = capacity
+    @property
+    def items(self):
+        pass
 
     @property
     def capacity(self):
-        return self.__capacity
+        pass
 
-    @capacity.setter
-    def capacity(self, count):
-        self.__capacity = count
+    def __init__(self, items: dict, capacity=100):
+        self._items = items
+        self._capacity = capacity
+
+    def __repr__(self):
+        string_ = ""
+        for key, value in self._items.items():
+            string_ += f"{key}: {value}\n"
+        return string_
 
     def add(self, name, count): #увеличивает запас items с учетом лимита capacity
-        if name in self.__items.keys():
+        if name in self._items.keys():
             if self.get_free_space() >= count:
                 print("Товар добавлен")
-                self.__items[name] += count
+                self._items[name] += count
                 return True
             else:
                 print("Недостаточно места на складе/магазине")
@@ -42,47 +62,42 @@ class Store(Storage):
         else:
             if self.get_free_space() >= count:
                 print("Товар добавлен")
-                self.__items[name] = count
+                self._items[name] = count
                 return True
             else:
                 print("Недостатоно места на складе/магазине")
                 return False
 
-    def remove(self, name, count):
-        if self.__items[name] >= count:
+    def remove(self, name, count): #уменьшает запас товара
+        if self._items[name] >= count:
             print("Такое количество товара на складе/в магазине есть")
-            self.__items[name] -= count
+            self._items[name] -= count
+            print("Товар добавлен")
             return True
         else:
             print("Недостаточно места на складе/магазине")
             return False
 
-    def get_free_space(self):
+    def get_free_space(self): # возвращаем кол-во свободных мест
         current_space = 0
-        for value in self.__items.values():
+        for value in self._items.values():
             current_space += value
-        return self.__capacity - current_space
+        return self._capacity - current_space
 
-    def get_items(self):
-        return self.__items
+    @property
+    def get_items(self): # возвращает содержание склада в виде словаря
+        return f'Всеего: {self._items}'
 
     def get_unique_items_count(self):
-        return len(self.__items.keys())
-
-    def __str__(self):
-        st = "\n"
-        for key, value in self.__items.items():
-            print(f"{key}:{value}")
-        return st
+        pass
 
 class Shop(Store):
     def __init__(self, items: dict, capacity=20):
         super().__init__(items, capacity)
 
-    def add(self, name, count):
+    def add(self, name, count): # увеличивает запас товаров
         if self.get_unique_items_count() >= 5:
             print("Cлишком много разных товаров")
-            return False
         else:
             super().add(name, count)
 
@@ -125,7 +140,6 @@ def main():
         if user_input in ['стоп', 'stop']:
             print('До свидания')
             break
-
         try:
             request = Request(user_input)
             request.move()
